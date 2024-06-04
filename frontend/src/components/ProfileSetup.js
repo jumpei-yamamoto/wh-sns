@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 const ProfileSetup = () => {
@@ -18,8 +18,8 @@ const ProfileSetup = () => {
     formData.append("profilePicture", profilePicture);
 
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/profileSetup.php",
+      const response = await api.post(
+        "/profileSetup.php",
         formData,
         {
           headers: {

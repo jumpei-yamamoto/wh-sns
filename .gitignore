@@ -1,3 +1,5 @@
 .vscode
 backend/build
+backend/config.php
 frontend/node_modules
+frontend/.env

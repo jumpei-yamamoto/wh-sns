@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import api from "../api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,8 +12,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/login.php",
+      const response = await api.post(
+        "/login.php",
         { email, password }
       );
       console.log("Response data:", response.data);
@@ -21,8 +22,8 @@ const Login = () => {
         localStorage.setItem("userId", response.data.userId);
 
         // プロフィール設定のチェック
-        const profileResponse = await axios.get(
-          "http://localhost/sns/backend/checkProfile.php",
+        const profileResponse = await api.get(
+          "/checkProfile.php",
           { params: { userId: response.data.userId } }
         );
         if (profileResponse.data.profileComplete) {

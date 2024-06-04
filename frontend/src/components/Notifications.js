@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
@@ -9,8 +9,8 @@ const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/getNotifications.php?userId=${userId}`
+      const response = await api.get(
+        `/getNotifications.php?userId=${userId}`
       );
       setNotifications(response.data.notifications);
     } catch (error) {
@@ -20,7 +20,7 @@ const Notifications = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await axios.post("http://localhost/sns/backend/markAsRead.php", {
+      await api.post("/markAsRead.php", {
         notificationId,
       });
       fetchNotifications();

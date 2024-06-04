@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 
 const ThreadPage = () => {
@@ -12,9 +12,7 @@ const ThreadPage = () => {
 
   const fetchThread = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/getThreads.php?id=${threadId}`
-      );
+      const response = await api.get(`/getThreads.php?id=${threadId}`);
       setThread(response.data.thread);
     } catch (error) {
       console.error("There was an error fetching the thread!", error);
@@ -23,8 +21,8 @@ const ThreadPage = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/getThreadPosts.php?threadId=${threadId}`
+      const response = await api.get(
+        `/getThreadPosts.php?threadId=${threadId}`
       );
       setPosts(response.data.posts);
     } catch (error) {
@@ -40,10 +38,11 @@ const ThreadPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/createThreadPost.php",
-        { threadId, userId, content: newPost }
-      );
+      const response = await api.post("/createThreadPost.php", {
+        threadId,
+        userId,
+        content: newPost,
+      });
       if (response.data.success) {
         setNewPost("");
         fetchPosts();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import CreatePost from "./CreatePost";
+import api from "../api";
 
 const HomeFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -9,8 +9,8 @@ const HomeFeed = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost/sns/backend/getPosts.php"
+      const response = await api.get(
+        "/getPosts.php"
       );
       setPosts(response.data.posts);
     } catch (error) {

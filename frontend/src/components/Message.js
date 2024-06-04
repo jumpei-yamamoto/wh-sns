@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 
 const Message = () => {
@@ -11,8 +11,8 @@ const Message = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/getMessages.php?senderId=${senderId}&receiverId=${receiverId}`
+      const response = await api.get(
+        `/getMessages.php?senderId=${senderId}&receiverId=${receiverId}`
       );
       setMessages(response.data.messages);
     } catch (error) {
@@ -27,8 +27,8 @@ const Message = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/sendMessage.php",
+      const response = await api.post(
+        "/sendMessage.php",
         { senderId, receiverId, content: newMessage }
       );
       if (response.data.success) {

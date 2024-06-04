@@ -14,7 +14,7 @@ import MessagesList from "./components/MessagesList";
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/sns/backend/">
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />

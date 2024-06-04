@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 const CreateThread = () => {
   const [title, setTitle] = useState("");
@@ -11,8 +11,8 @@ const CreateThread = () => {
     e.preventDefault();
     const userId = localStorage.getItem("userId");
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/createThread.php",
+      const response = await api.post(
+        "/createThread.php",
         { title, description, userId }
       );
       if (response.data.success) {

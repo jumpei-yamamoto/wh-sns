@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { Link, useNavigate } from "react-router-dom";
 
 const ThreadList = () => {
@@ -8,8 +8,8 @@ const ThreadList = () => {
 
   const fetchThreads = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost/sns/backend/getThreads.php"
+      const response = await api.get(
+        "/getThreads.php"
       );
       setThreads(response.data.threads);
     } catch (error) {

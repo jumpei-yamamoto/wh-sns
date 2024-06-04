@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 const Search = () => {
@@ -10,8 +10,8 @@ const Search = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/search.php?query=${query}`
+      const response = await api.get(
+        `/search.php?query=${query}`
       );
       setResults(response.data);
     } catch (error) {

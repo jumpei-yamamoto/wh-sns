@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 const MessagesList = () => {
@@ -9,8 +9,8 @@ const MessagesList = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost/sns/backend/getReceivedMessages.php?userId=${userId}`
+      const response = await api.get(
+        `/getReceivedMessages.php?userId=${userId}`
       );
       setMessages(response.data.messages);
     } catch (error) {

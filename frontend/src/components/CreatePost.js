@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 const CreatePost = ({ onPostCreated }) => {
   const [content, setContent] = useState("");
@@ -16,8 +16,8 @@ const CreatePost = ({ onPostCreated }) => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost/sns/backend/createPost.php",
+      const response = await api.post(
+        "/createPost.php",
         formData,
         {
           headers: {
