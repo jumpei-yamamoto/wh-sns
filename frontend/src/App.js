@@ -11,10 +11,13 @@ import Message from "./components/Message";
 import Notifications from "./components/Notifications";
 import Search from "./components/Search";
 import MessagesList from "./components/MessagesList";
+import Settings from "./components/Settings";
 
 const App = () => {
+  // NODE_ENVを利用してbasenameを分岐
+  const basename = process.env.NODE_ENV === "production" ? "/sns/backend" : "";
   return (
-    <Router basename="/sns/backend/">
+    <Router basename={basename}>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
@@ -28,6 +31,7 @@ const App = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/search" element={<Search />} />
         <Route path="/messages" element={<MessagesList />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

@@ -9,9 +9,7 @@ const HomeFeed = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get(
-        "/getPosts.php"
-      );
+      const response = await api.get("/getPosts.php");
       setPosts(response.data.posts);
     } catch (error) {
       console.error("There was an error fetching the posts!", error);
@@ -31,6 +29,9 @@ const HomeFeed = () => {
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
       <div className="w-full max-w-2xl mt-8 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Home Feed</h1>
+        <Link to="/settings" className="bg-blue-500 text-white p-2 rounded">
+          Settings
+        </Link>
         <button
           onClick={handleSignOut}
           className="bg-red-500 text-white p-2 rounded"
