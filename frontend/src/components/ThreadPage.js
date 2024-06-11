@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import api from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -8,18 +8,17 @@ const ThreadPage = () => {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
 
-  const fetchThread = async () => {
+  const fetchThread = useCallback(async () => {
     try {
       const response = await api.get(`/getThreads.php?id=${threadId}`);
       setThread(response.data.thread);
     } catch (error) {
       console.error("There was an error fetching the thread!", error);
     }
-  };
+  }, [threadId]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const response = await api.get(
         `/getThreadPosts.php?threadId=${threadId}`
@@ -28,19 +27,18 @@ const ThreadPage = () => {
     } catch (error) {
       console.error("There was an error fetching the posts!", error);
     }
-  };
+  }, [threadId]);
 
   useEffect(() => {
     fetchThread();
     fetchPosts();
-  }, [threadId]);
+  }, [fetchThread, fetchPosts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await api.post("/createThreadPost.php", {
         threadId,
-        userId,
         content: newPost,
       });
       if (response.data.success) {

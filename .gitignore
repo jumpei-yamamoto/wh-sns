@@ -1,8 +1,10 @@
 .vscode
 memo.txt
+test.md
+backend/.env
 backend/build
+backend/folder.txt
 backend/config.php
 frontend/node_modules
-frontend/src/App_sakuraserver.js
 frontend/.env.development
 frontend/.env.production

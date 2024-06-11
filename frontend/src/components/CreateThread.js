@@ -9,12 +9,11 @@ const CreateThread = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userId = localStorage.getItem("userId");
     try {
-      const response = await api.post(
-        "/createThread.php",
-        { title, description, userId }
-      );
+      const response = await api.post("/createThread.php", {
+        title,
+        description,
+      });
       if (response.data.success) {
         alert("Thread created successfully");
         setTitle("");

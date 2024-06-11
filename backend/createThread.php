@@ -1,10 +1,8 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
-
+session_start();
 include 'config.php';
+include 'funcs.php';
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $input = file_get_contents("php://input");
@@ -15,28 +13,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $title = $data['title'];
     $description = $data['description'];
-    $userId = $data['userId'];
+    $userId = $_SESSION['user_id'] ?? null;
 
     if ($title && $description && $userId) {
-        $query = "INSERT INTO threads (title, description, user_id) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("ssi", $title, $description, $userId);
+        $pdo = db_conn();
+        
+        $query = "INSERT INTO threads (title, description, user_id) VALUES (:title, :description, :user_id)";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindValue(':title', $title, PDO::PARAM_STR);
+        $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
             // 通知を作成
             $notificationContent = "New thread created: " . $title;
-            $notificationQuery = "INSERT INTO notifications (user_id, type, content) VALUES (?, 'thread', ?)";
-            $notificationStmt = $conn->prepare($notificationQuery);
-            $notificationStmt->bind_param("is", $userId, $notificationContent);
+            $notificationQuery = "INSERT INTO notifications (user_id, type, content) VALUES (:user_id, 'thread', :content)";
+            $notificationStmt = $pdo->prepare($notificationQuery);
+            $notificationStmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $notificationStmt->bindValue(':content', $notificationContent, PDO::PARAM_STR);
             $notificationStmt->execute();
 
             echo json_encode(['success' => true, 'message' => 'Thread and notification created successfully']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->errorInfo()[2]]);
         }
-
-        $stmt->close();
-        $conn->close();
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid input data']);
     }

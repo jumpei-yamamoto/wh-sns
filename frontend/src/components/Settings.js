@@ -6,17 +6,15 @@ const Settings = () => {
   const navigate = useNavigate();
 
   const handleDeleteAccount = async () => {
-    const userId = localStorage.getItem("userId");
     if (
       window.confirm(
         "本当にアカウントを削除しても良いですか? この操作は取り消し出来ません。"
       )
     ) {
       try {
-        const response = await api.post("/deleteAccount.php", { userId });
+        const response = await api.post("/deleteAccount.php");
         if (response.data.success) {
           alert("Account deleted successfully.");
-          localStorage.removeItem("userId");
           navigate("/signup");
         } else {
           alert("Failed to delete account: " + response.data.message);

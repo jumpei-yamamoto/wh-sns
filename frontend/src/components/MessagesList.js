@@ -4,14 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 const MessagesList = () => {
   const [messages, setMessages] = useState([]);
-  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const fetchMessages = async () => {
     try {
-      const response = await api.get(
-        `/getReceivedMessages.php?userId=${userId}`
-      );
+      const response = await api.get("/getReceivedMessages.php");
       setMessages(response.data.messages);
     } catch (error) {
       console.error("There was an error fetching the messages!", error);

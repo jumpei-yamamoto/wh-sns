@@ -1,49 +1,43 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-
 include 'config.php';
 
+include 'funcs.php';
+
 $searchQuery = $_GET['query'];
-
-$usersQuery = "SELECT id, username, profile_picture FROM users WHERE username LIKE ?";
-$postsQuery = "SELECT posts.id, posts.content, posts.created_at, users.username, users.profile_picture FROM posts JOIN users ON posts.user_id = users.id WHERE posts.content LIKE ?";
-$threadsQuery = "SELECT threads.id, threads.title, threads.description, threads.created_at, users.username FROM threads JOIN users ON threads.user_id = users.id WHERE threads.title LIKE ? OR threads.description LIKE ?";
-
 $searchPattern = '%' . $searchQuery . '%';
 
-$usersStmt = $conn->prepare($usersQuery);
-$usersStmt->bind_param("s", $searchPattern);
+$pdo = db_conn();
+
+// ユーザー検索クエリ
+$usersQuery = "SELECT id, username, profile_picture FROM users WHERE username LIKE :searchPattern";
+$usersStmt = $pdo->prepare($usersQuery);
+$usersStmt->bindValue(':searchPattern', $searchPattern, PDO::PARAM_STR);
 $usersStmt->execute();
-$usersResult = $usersStmt->get_result();
-$users = [];
-while ($row = $usersResult->fetch_assoc()) {
-    $users[] = $row;
-}
+$users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$postsStmt = $conn->prepare($postsQuery);
-$postsStmt->bind_param("s", $searchPattern);
+// 投稿検索クエリ
+$postsQuery = "SELECT posts.id, posts.content, posts.created_at, users.username, users.profile_picture 
+               FROM posts 
+               JOIN users ON posts.user_id = users.id 
+               WHERE posts.content LIKE :searchPattern";
+$postsStmt = $pdo->prepare($postsQuery);
+$postsStmt->bindValue(':searchPattern', $searchPattern, PDO::PARAM_STR);
 $postsStmt->execute();
-$postsResult = $postsStmt->get_result();
-$posts = [];
-while ($row = $postsResult->fetch_assoc()) {
-    $posts[] = $row;
-}
+$posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$threadsStmt = $conn->prepare($threadsQuery);
-$threadsStmt->bind_param("ss", $searchPattern, $searchPattern);
+// スレッド検索クエリ
+$threadsQuery = "SELECT threads.id, threads.title, threads.description, threads.created_at, users.username 
+                 FROM threads 
+                 JOIN users ON threads.user_id = users.id 
+                 WHERE threads.title LIKE :searchPattern OR threads.description LIKE :searchPattern";
+$threadsStmt = $pdo->prepare($threadsQuery);
+$threadsStmt->bindValue(':searchPattern', $searchPattern, PDO::PARAM_STR);
 $threadsStmt->execute();
-$threadsResult = $threadsStmt->get_result();
-$threads = [];
-while ($row = $threadsResult->fetch_assoc()) {
-    $threads[] = $row;
-}
+$threads = $threadsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode(['users' => $users, 'posts' => $posts, 'threads' => $threads]);
 
-$usersStmt->close();
-$postsStmt->close();
-$threadsStmt->close();
-$conn->close();
+$usersStmt->closeCursor();
+$postsStmt->closeCursor();
+$threadsStmt->closeCursor();
+?>

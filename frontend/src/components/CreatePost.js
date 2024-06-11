@@ -8,23 +8,17 @@ const CreatePost = ({ onPostCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    const userId = localStorage.getItem("userId");
-    formData.append("userId", userId);
     formData.append("content", content);
     if (image) {
       formData.append("image", image);
     }
 
     try {
-      const response = await api.post(
-        "/createPost.php",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.post("/createPost.php", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (response.data.success) {
         alert("Post created successfully");
         onPostCreated();

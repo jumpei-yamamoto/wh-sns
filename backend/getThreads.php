@@ -1,22 +1,30 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-
 include 'config.php';
+include 'funcs.php';
 
-$query = "SELECT threads.id, threads.title, threads.description, threads.created_at, users.username 
-          FROM threads 
-          JOIN users ON threads.user_id = users.id 
-          ORDER BY threads.created_at DESC";
-$result = $conn->query($query);
+$pdo = db_conn();
 
-$threads = [];
-while ($row = $result->fetch_assoc()) {
-    $threads[] = $row;
+if (isset($_GET['id'])) {
+    $threadId = $_GET['id'];
+
+    $query = "SELECT threads.id, threads.title, threads.description, threads.created_at, users.username 
+              FROM threads 
+              JOIN users ON threads.user_id = users.id 
+              WHERE threads.id = :id";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindValue(':id', $threadId, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo json_encode(['thread' => $result]);
+} else {
+    $query = "SELECT threads.id, threads.title, threads.description, threads.created_at, users.username 
+              FROM threads 
+              JOIN users ON threads.user_id = users.id 
+              ORDER BY threads.created_at DESC";
+    $stmt = $pdo->query($query);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['threads' => $result]);
 }
-
-echo json_encode(['threads' => $threads]);
-
-$conn->close();
+?>

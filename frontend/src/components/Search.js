@@ -10,9 +10,7 @@ const Search = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.get(
-        `/search.php?query=${query}`
-      );
+      const response = await api.get(`/search.php?query=${query}`);
       setResults(response.data);
     } catch (error) {
       console.error("There was an error performing the search!", error);
@@ -54,7 +52,7 @@ const Search = () => {
               {results.users.map((user) => (
                 <div key={user.id} className="bg-gray-200 p-4 rounded mb-4">
                   <img
-                    src={`http://localhost/sns/backend/${user.profile_picture}`}
+                    src={`${process.env.REACT_APP_API_BASE_URL}/${user.profile_picture}`}
                     alt={user.username}
                     className="w-10 h-10 rounded-full mr-2"
                   />
@@ -70,7 +68,7 @@ const Search = () => {
                 <div key={post.id} className="bg-gray-200 p-4 rounded mb-4">
                   <div className="flex items-center mb-2">
                     <img
-                      src={`http://localhost/sns/backend/${post.profile_picture}`}
+                      src={`/sns/backend/${post.profile_picture}`}
                       alt={post.username}
                       className="w-10 h-10 rounded-full mr-2"
                     />

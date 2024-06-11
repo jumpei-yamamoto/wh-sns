@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api from "../api";
@@ -12,20 +11,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post(
-        "/login.php",
-        { email, password }
-      );
+      const response = await api.post("/login.php", { email, password });
       console.log("Response data:", response.data);
       if (response.data.success) {
-        // ユーザーIDをログイン成功時に保存
-        localStorage.setItem("userId", response.data.userId);
-
         // プロフィール設定のチェック
-        const profileResponse = await api.get(
-          "/checkProfile.php",
-          { params: { userId: response.data.userId } }
-        );
+        const profileResponse = await api.get("/checkProfile.php", {
+          params: { userId: response.data.userId },
+        });
         if (profileResponse.data.profileComplete) {
           navigate("/home"); // プロフィール設定済み
         } else {

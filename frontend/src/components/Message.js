@@ -6,13 +6,12 @@ const Message = () => {
   const { receiverId } = useParams(); // URLパラメータからreceiverIdを取得
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const senderId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const fetchMessages = async () => {
     try {
       const response = await api.get(
-        `/getMessages.php?senderId=${senderId}&receiverId=${receiverId}`
+        `/getMessages.php?receiverId=${receiverId}`
       );
       setMessages(response.data.messages);
     } catch (error) {
@@ -27,10 +26,10 @@ const Message = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post(
-        "/sendMessage.php",
-        { senderId, receiverId, content: newMessage }
-      );
+      const response = await api.post("/sendMessage.php", {
+        receiverId,
+        content: newMessage,
+      });
       if (response.data.success) {
         setNewMessage("");
         fetchMessages();

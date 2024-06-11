@@ -11,22 +11,16 @@ const ProfileSetup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    const userId = localStorage.getItem("userId"); // ユーザーIDを取得
-    formData.append("userId", userId); // ユーザーIDをフォームデータに追加
     formData.append("name", name);
     formData.append("bio", bio);
     formData.append("profilePicture", profilePicture);
 
     try {
-      const response = await api.post(
-        "/profileSetup.php",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.post("/profileSetup.php", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (response.data.success) {
         alert("Profile setup successful");
         navigate("/home");

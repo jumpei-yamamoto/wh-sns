@@ -1,15 +1,23 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
-
 include 'config.php';
+include 'funcs.php';
+
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $userId = $_POST['userId'];
+    $userId = $_SESSION['user_id'] ?? null;
     $content = $_POST['content'];
     $image = null;
+
+    if ($userId === null) {
+        echo json_encode(['success' => false, 'message' => 'User not authenticated']);
+        exit();
+    }
 
     if (!is_dir('img')) {
         mkdir('img', 0777, true);
@@ -27,18 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    $query = "INSERT INTO posts (user_id, content, image) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("iss", $userId, $content, $image);
+    $pdo = db_conn();
+
+    $query = "INSERT INTO posts (user_id, content, image) VALUES (:user_id, :content, :image)";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->bindValue(':content', $content, PDO::PARAM_STR);
+    $stmt->bindValue(':image', $image, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Post created successfully']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->errorInfo()[2]]);
     }
-
-    $stmt->close();
-    $conn->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
+?>

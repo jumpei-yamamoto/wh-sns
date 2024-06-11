@@ -1,42 +1,36 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
-
+session_start();
 include 'config.php';
+include 'funcs.php';
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $input = file_get_contents("php://input");
     $data = json_decode($input, true);
 
-    // デバッグ用ログ出力
-    error_log("Received data: " . print_r($data, true));
-
-    $senderId = $data['senderId'];
+    $senderId = $_SESSION['user_id'] ?? null;
     $receiverId = $data['receiverId'];
     $content = $data['content'];
 
     if ($senderId && $receiverId && $content) {
-        $query = "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("iis", $senderId, $receiverId, $content);
+        $pdo = db_conn();
+
+        $query = "INSERT INTO messages (sender_id, receiver_id, content) VALUES (:senderId, :receiverId, :content)";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindValue(':senderId', $senderId, PDO::PARAM_INT);
+        $stmt->bindValue(':receiverId', $receiverId, PDO::PARAM_INT);
+        $stmt->bindValue(':content', $content, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            // 通知を作成
-            $notificationContent = "You have received a new message";
-            $notificationQuery = "INSERT INTO notifications (user_id, type, content) VALUES (?, 'message', ?)";
-            $notificationStmt = $conn->prepare($notificationQuery);
-            $notificationStmt->bind_param("is", $receiverId, $notificationContent);
-            $notificationStmt->execute();
-
-            echo json_encode(['success' => true, 'message' => 'Message and notification sent successfully']);
+            echo json_encode(['success' => true, 'message' => 'Message sent successfully']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->errorInfo()[2]]);
         }
-
-        $stmt->close();
-        $conn->close();
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid input data']);
     }

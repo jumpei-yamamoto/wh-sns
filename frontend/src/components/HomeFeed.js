@@ -20,9 +20,18 @@ const HomeFeed = () => {
     fetchPosts();
   }, []);
 
-  const handleSignOut = () => {
-    localStorage.removeItem("userId");
-    navigate("/login");
+  const handleSignOut = async () => {
+    try {
+      const response = await api.post("/logout.php");
+      if (response.data.success) {
+        navigate("/login");
+      } else {
+        alert("Failed to log out: " + response.data.message);
+      }
+    } catch (error) {
+      alert("An error occurred: " + error.message);
+      console.error("There was an error logging out!", error);
+    }
   };
 
   return (
@@ -69,7 +78,7 @@ const HomeFeed = () => {
             <div key={post.id} className="bg-gray-200 p-4 rounded mb-4 w-full">
               <div className="flex items-center mb-2">
                 <img
-                  src={`http://localhost/sns/backend/${post.profile_picture}`}
+                  src={`${process.env.REACT_APP_API_BASE_URL}/${post.profile_picture}`}
                   alt="Profile"
                   className="w-10 h-10 rounded-full mr-2"
                 />
@@ -86,7 +95,11 @@ const HomeFeed = () => {
               </div>
               <p>{post.content}</p>
               {post.image && (
-                <img src={post.image} alt="Post" className="mt-2 max-w-full" />
+                <img
+                  src={`${process.env.REACT_APP_API_BASE_URL}/${post.image}`}
+                  alt="Post"
+                  className="mt-2 max-w-full"
+                />
               )}
             </div>
           ))

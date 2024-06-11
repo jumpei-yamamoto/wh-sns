@@ -1,29 +1,21 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-
 include 'config.php';
 
+include 'funcs.php';
+
 $threadId = $_GET['threadId'];
+
+$pdo = db_conn();
 
 $query = "SELECT thread_posts.id, thread_posts.content, thread_posts.created_at, users.username 
           FROM thread_posts 
           JOIN users ON thread_posts.user_id = users.id 
-          WHERE thread_posts.thread_id = ? 
+          WHERE thread_posts.thread_id = :threadId 
           ORDER BY thread_posts.created_at DESC";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $threadId);
+$stmt = $pdo->prepare($query);
+$stmt->bindValue(':threadId', $threadId, PDO::PARAM_INT);
 $stmt->execute();
-$result = $stmt->get_result();
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$posts = [];
-while ($row = $result->fetch_assoc()) {
-    $posts[] = $row;
-}
-
-echo json_encode(['posts' => $posts]);
-
-$stmt->close();
-$conn->close();
+echo json_encode(['posts' => $result]);
+?>

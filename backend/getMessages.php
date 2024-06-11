@@ -1,31 +1,36 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-
+session_start();
 include 'config.php';
+include 'funcs.php';
 
-$senderId = $_GET['senderId'];
-$receiverId = $_GET['receiverId'];
 
-$query = "SELECT messages.id, messages.content, messages.created_at, sender.username as sender, receiver.username as receiver 
-          FROM messages 
-          JOIN users as sender ON messages.sender_id = sender.id 
-          JOIN users as receiver ON messages.receiver_id = receiver.id 
-          WHERE (messages.sender_id = ? AND messages.receiver_id = ?) OR (messages.sender_id = ? AND messages.receiver_id = ?)
-          ORDER BY messages.created_at ASC";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("iiii", $senderId, $receiverId, $receiverId, $senderId);
-$stmt->execute();
-$result = $stmt->get_result();
 
-$messages = [];
-while ($row = $result->fetch_assoc()) {
-    $messages[] = $row;
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-echo json_encode(['messages' => $messages]);
+$senderId = $_SESSION['user_id'] ?? null;
+$receiverId = $_GET['receiverId'] ?? null;
 
-$stmt->close();
-$conn->close();
+if ($senderId && $receiverId) {
+    $pdo = db_conn();
+
+    $query = "SELECT messages.id, messages.content, messages.created_at, sender.username as sender, receiver.username as receiver 
+              FROM messages 
+              JOIN users as sender ON messages.sender_id = sender.id 
+              JOIN users as receiver ON messages.receiver_id = receiver.id 
+              WHERE (messages.sender_id = :senderId AND messages.receiver_id = :receiverId) 
+              OR (messages.sender_id = :receiverId AND messages.receiver_id = :senderId)
+              ORDER BY messages.created_at ASC";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindValue(':senderId', $senderId, PDO::PARAM_INT);
+    $stmt->bindValue(':receiverId', $receiverId, PDO::PARAM_INT);
+    $stmt->execute();
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['messages' => $messages]);
+} else {
+    echo json_encode(['messages' => []]);
+}
+?>

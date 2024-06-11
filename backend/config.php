@@ -1,13 +1,12 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "gs_php02_db";
+require_once __DIR__ . '/load_env.php';
+load_env(__DIR__ . '/.env');
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$allowed_origin = getenv('ALLOWED_ORIGIN');
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+header("Access-Control-Allow-Origin: $allowed_origin");
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json');
+?>

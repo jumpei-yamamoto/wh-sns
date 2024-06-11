@@ -4,19 +4,20 @@ import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get(
-        `/getNotifications.php?userId=${userId}`
-      );
+      const response = await api.get("/getNotifications.php");
       setNotifications(response.data.notifications);
     } catch (error) {
       console.error("There was an error fetching the notifications!", error);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const markAsRead = async (notificationId) => {
     try {
@@ -31,10 +32,6 @@ const Notifications = () => {
       );
     }
   };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
